@@ -8,8 +8,8 @@ main = do
         args = ["-l"]
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
-    putStrLn $ "test: " ++ show rc
-    mapM_ putStrLn $ map ("out: " ++) $ lines out
-    mapM_ putStrLn $ map ("err: " ++) $ lines err
+    putStrLn $ "exit code: " ++ show rc
+    mapM putStrLn $ map ("out: " ++) $ lines out
+    mapM putStrLn $ map ("err: " ++) $ lines err
 
 
