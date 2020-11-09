@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 66e825ae9c457cac4aedec227d5ee34249791139bcc2077e6209541972556fd9
+-- hash: 63f3f46cc4f854e0e98446e7273aed5e47ffb07a44387051f82d87c1c411fea6
 
 name:           semantic-viz
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , process
   default-language: Haskell2010
 
 executable semantic-viz-exe
@@ -45,6 +46,7 @@ executable semantic-viz-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , process
     , semantic-viz
   default-language: Haskell2010
 
@@ -58,5 +60,6 @@ test-suite semantic-viz-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , process
     , semantic-viz
   default-language: Haskell2010
