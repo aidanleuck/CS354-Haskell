@@ -11,5 +11,5 @@ main = do
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
 
-    let (_,_,group1,_) = rc =~ "Sense 1(.*?)Sense" :: (String,String,String,[String])
+    let (_,_,group1,_) = out =~ "Sense 1(.*?)Sense" :: (String,String,String,[String])
     putStrLn group1
