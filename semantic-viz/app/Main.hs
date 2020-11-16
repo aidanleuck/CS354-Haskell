@@ -7,7 +7,7 @@ import Text.Regex.PCRE
 
 main = do
     let cmd = "wn"
-        args = ["dog","-treen"]
+        args = ["dog", "-treen"]
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
 
