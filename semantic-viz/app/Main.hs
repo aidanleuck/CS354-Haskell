@@ -1,15 +1,15 @@
 module Main where
 
 import Lib
+import System.IO
 import System.Process
+import Text.Regex.PCRE
 
 main = do
     let cmd = "wn"
         args = ["dog", "-treen"]
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
-    putStrLn $ "exit code: " ++ show rc
-    mapM putStrLn $ map ("out: " ++) $ lines out
-    mapM putStrLn $ map ("err: " ++) $ lines err
 
-
+    let (_,_,group1,_) = rc =~ "Sense 1(.*?)Sense" :: (String,String,String,[String])
+    putStrLn group1
