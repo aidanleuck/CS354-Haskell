@@ -3,7 +3,9 @@ module Main where
 import Lib
 import System.IO
 import System.Process
-import Text.Regex.PCRE
+import Text.Regex.PCRE.Light
+import Data.ByteString.Char8 as C
+import Data.Maybe
 
 main = do
     let cmd = "wn"
@@ -11,5 +13,11 @@ main = do
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
 
-    let (_,_,group1,_) = rc =~ "Sense 1(.*?)Sense" :: (String,String,String,[String])
-    putStrLn group1
+--    handle <- openFile "/Users/dvm/Downloads/haskelltxt.txt" ReadMode
+--    contents <- System.IO.hGetContents handle
+
+    let r = compile (C.pack "Sense 1(.*?)Sense") [dotall]
+    let groups = match r (C.pack contents) []
+    case groups of
+        Just group1 -> C.putStrLn (Prelude.head groups)
+        Nothing -> return ()
