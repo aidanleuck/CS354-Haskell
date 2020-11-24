@@ -19,9 +19,8 @@ main = do
 
 --    handle <- openFile "/Users/dvm/Downloads/haskelltxt.txt" ReadMode
 --    contents <- System.IO.hGetContents handle
---parseWN :: ByteString -> ByteString
---parseWN contents = groups where
-    --r = compile (C.pack "Sense 1(.*?)Sense") [dotall]
-    --groups = match r (C.pack contents) []
-        --parseWN groups | groups == [] = return ()
-          --             | groups /= [] = prelude.Prelude.head
+parseWN :: ByteString -> [Char]
+parseWN contents = groups where
+    r = compile (C.pack "Sense 1(.*?)Sense") [dotall]
+    groups = match r (C.pack contents) []
+      Prelude.head groups
