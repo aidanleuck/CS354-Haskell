@@ -27,11 +27,11 @@ insertEdge :: Eq a => (a,a) -> Graph a -> Graph a
 insertEdge = undefined -- insert edge in list of origin
 --do not forget to add origin, end if they don't exist
 
---split :: IO [String] -> [String]
---split "" = [""]
---split ('=':cs) = "" : split cs
---split (c:cs) = (c:cellCompletion) : otherCells
--- where cellCompletion : otherCells = split cs
+split :: [Char] -> [String]
+split "" = [""]
+split ('=':cs) = "" : split cs
+split (c:cs) = (c:cellCompletion) : otherCells
+ where cellCompletion : otherCells = split cs
 
 
 parseFile :: String -> IO String
