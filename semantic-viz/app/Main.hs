@@ -2,7 +2,6 @@ import Lib
 import System.IO
 import System.Process
 import Text.Regex.PCRE.Light
---import Data.ByteString.Char8 as C
 import Data.Maybe
 
 isSpace s = s == ' '
