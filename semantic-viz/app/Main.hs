@@ -26,10 +26,12 @@ parseFile fileName = do
     return (unlines outLines)
 
 main = do
---    let cmd = "wn"
---        args = ["dog", "-treen"]
---        input = ""
---    (rc, out, err) <- readProcessWithExitCode cmd args input
+
+    n <- getLine
+    let cmd = "app/wc-bash.sh"
+        args = [n]
+        input = ""
+    (rc, out, err) <- readProcessWithExitCode cmd args input
 
     let x = parseFile "app/wn_output.txt"
     y <- x
