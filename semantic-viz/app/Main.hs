@@ -36,9 +36,9 @@ split (c:cs) = (c:cellCompletion) : otherCells
 
 parseFile :: String -> IO String
 parseFile fileName = do
-    contents <- readFile fileName
-    let inputLines = lines contents
-    return (unlines inputLines)
+    let inputLines = drop 4 . lines <$> readFile fileName
+    outLines <- inputLines
+    return (unlines outLines)
 
 main = do
 --    let cmd = "wn"
@@ -46,7 +46,7 @@ main = do
 --        input = ""
 --    (rc, out, err) <- readProcessWithExitCode cmd args input
 
-    let x = parseFile "haskelltxt.txt"
+    let x = parseFile "app/wn_output.txt"
     y <- x
     putStrLn y
 
