@@ -38,13 +38,13 @@ getLines fileName = do
 
 
 -- Gets number of leading spaces from each line (to determine node placement in graph)
-getSpaces :: [String] -> [Int]
+getSpaces :: [String] -> [[(String, Int)]]
 getSpaces inputLines = do
     let splitLines = map split inputLines
         spaces = map head splitLines
         num_spaces = map length spaces
-    return num_spaces
-
+        pairs = zip inputLines num_spaces
+    return pairs
 
 main = do
     n <- getLine
@@ -55,9 +55,8 @@ main = do
 
     let inputLines = getLines "app/wn_output.txt"
     nonIOLines <- inputLines
-    let inputSpaces = getSpaces nonIOLines
-        pairs = zip nonIOLines inputSpaces
-        hashmap = M.fromList pairs
+    let pairs = getSpaces nonIOLines
+--        hashmap = M.fromList pairs
 --        adjacencyList =  M.insert n 0 hashmap -- insert root node
 --        adjacencyList = buildAdjacencyList pairs hashmap
 --    print $ M.toList hashmap
