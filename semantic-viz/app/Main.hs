@@ -21,12 +21,12 @@ isSpace s = s == ' '
 countNumSpaces str = length (filter isSpace str)
 
 
--- Splits a line on the '=' character. Used by the getSpaces function.
-split :: [Char] -> [String]
-split "" = [""]
-split ('=':cs) = "" : split cs
-split (c:cs) = (c:cellCompletion) : otherCells
- where cellCompletion : otherCells = split cs
+-- Splits a line on the '=' character. Used by the getPairs function.
+splitOnEqualSign :: [Char] -> [String]
+splitOnEqualSign "" = [""]
+splitOnEqualSign ('=':cs) = "" : splitOnEqualSign cs
+splitOnEqualSign (c:cs) = (c:cellCompletion) : otherCells
+ where cellCompletion : otherCells = splitOnEqualSign cs
 
 
 -- Gets lines from input file containing wordnet output, and removes headers from top
@@ -37,13 +37,14 @@ getLines fileName = do
     return outLines
 
 
--- Gets number of leading spaces from each line (to determine node placement in graph)
-getSpaces :: [String] -> [[(String, Int)]]
-getSpaces inputLines = do
-    let splitLines = map split inputLines
-        spaces = map head splitLines
-        num_spaces = map length spaces
-        pairs = zip inputLines num_spaces
+-- Inputs lines of Wordnet output and returns pairs of words + number of leading spaces for that input line
+getPairs :: [String] -> [[(String, Int)]]
+getPairs inputLines = do
+    let splitLines = map splitOnEqualSign inputLines  -- split input lines on '=' character
+        spaces = map head splitLines -- get leading spaces on each line
+        numSpaces = map length spaces -- measure number of leading spaces on each line
+        wordStrings = map head (map tail (map words inputLines)) -- get words on each line
+        pairs = zip wordStrings numSpaces
     return pairs
 
 main = do
@@ -55,7 +56,7 @@ main = do
 
     let inputLines = getLines "app/wn_output.txt"
     nonIOLines <- inputLines
-    let pairs = getSpaces nonIOLines
+    let pairs = getPairs nonIOLines
 --        hashmap = M.fromList pairs
 --        adjacencyList =  M.insert n 0 hashmap -- insert root node
 --        adjacencyList = buildAdjacencyList pairs hashmap
