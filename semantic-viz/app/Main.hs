@@ -1,8 +1,15 @@
 import Lib
 import System.IO
 import System.Process
-import Text.Regex.PCRE.Light
 import Data.Maybe
+import qualified Data.Map as M
+
+--buildAdjacencyList :: [Int] -> [String] -> M
+buildAdjacencyList keys vals hashmap = do
+    let map1 = M.insert 5 "Four" hashmap
+        map2 = M.insert 5 "Five" map1
+    return map2
+
 
 isSpace s = s == ' '
 countNumSpaces str = length (filter isSpace str)
@@ -13,25 +20,30 @@ split ('=':cs) = "" : split cs
 split (c:cs) = (c:cellCompletion) : otherCells
  where cellCompletion : otherCells = split cs
 
-
-parseFile :: String -> IO String
-parseFile fileName = do
+getLines :: String -> IO [String]
+getLines fileName = do
     let inputLines = drop 4 . lines <$> readFile fileName
     outLines <- inputLines
-    let splitLines = map split outLines
+    return outLines
+
+getSpaces :: [String] -> [Int]
+getSpaces inputLines = do
+    let splitLines = map split inputLines
     let spaces = map head splitLines
     let num_spaces = map length spaces
-    print num_spaces
-    return (unlines outLines)
+    return (head num_spaces)
 
 main = do
-
     n <- getLine
     let cmd = "app/wc-bash.sh"
         args = [n]
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
 
-    let x = parseFile "app/wn_output.txt"
-    y <- x
-    putStrLn y
+    let inputLines = getLines "app/wn_output.txt"
+    nonIOLines <- inputLines
+    let inputSpaces = getSpaces nonIOLines
+        emptyHashMap = M.empty
+        adjacencyList = buildAdjacencyList inputSpaces inputLines
+    -- mapM_ (print . snd) (M.toList adjacencyList)
+    print $ (M.toList adjacencyList)
