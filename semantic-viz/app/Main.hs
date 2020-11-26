@@ -57,8 +57,8 @@ main = do
     let inputLines = getLines "app/wn_output.txt"
     nonIOLines <- inputLines
     let pairs = getPairs nonIOLines
---        hashmap = M.fromList pairs
---        adjacencyList =  M.insert n 0 hashmap -- insert root node
+        hashmap = M.fromList (head pairs)
+        adjacencyList =  M.insert n 0 hashmap -- insert root node
 --        adjacencyList = buildAdjacencyList pairs hashmap
---    print $ M.toList hashmap
-    print pairs
+    print $ M.toList hashmap
+--    print pairs
