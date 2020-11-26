@@ -5,15 +5,30 @@ import Data.Maybe
 import Data.Map (Map)
 import qualified Data.Map as M
 
--- Builds an adjacency list using a list of words and their corresponding number of leading spaces
+-- Builds an adjacency list from a hashmap of key value pairs (word, num_spaces)
 --buildAdjacencyList :: [String] -> [Int] -> (Map String Int) -> IO ()
 --buildAdjacencyList [] [] hashmap = hashmap
-buildAdjacencyList (k:keys) (v:vals) hashmap = do
-    let map1 = M.insert k v hashmap
-    print $ M.toList map1
-    return map1
-        --map2 = buildAdjacencyList keys vals map1
-    -- return map1
+buildAdjacencyList [] prevParent currParent currNumSpaces hashmap = hashmap
+buildAdjacencyList pairs prevParent currParent currNumSpaces hashmap = do
+    let next = head pairs
+        word = head next
+        spaces = tail next
+    if spaces == currNumSpaces then
+        let vals = M.lookup currParent hashmap
+            vals = (word:vals)
+        M.update currParent vals hashmap
+    else if spaces > currNumSpaces then
+        let currNumSpaces = spaces
+            prevParent = currParent
+            currParent = word
+        M.insert word [] hashmap
+    else if spaces < currNumSpaces then
+        let currNumSpaces = spaces
+            currParent = prevParent
+            vals = M.lookup currParent hashmap
+            vals = (word:vals)
+        M.update currParent vals hashmap
+    buildAdjacencyList pairs prevParent currParent currNumSpaces hashmap
 
 
 -- Counts spaces
@@ -48,17 +63,18 @@ getPairs inputLines = do
     return pairs
 
 main = do
-    n <- getLine
+    category <- getLine
     let cmd = "app/wc-bash.sh"
-        args = [n]
+        args = [category]
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
 
     let inputLines = getLines "app/wn_output.txt"
     nonIOLines <- inputLines
     let pairs = getPairs nonIOLines
-        hashmap = M.fromList (head pairs)
-        adjacencyList =  M.insert n 0 hashmap -- insert root node
---        adjacencyList = buildAdjacencyList pairs hashmap
+        pairs = ((category, 0): pairs)
+        emptyMap = M.empty
+--        hashmapFromPairs = M.fromList (head pairs) -- construct hashmap of (word, num_spaces) pairs
+--        hashmapFromPairs =  M.insert n 0 hashmapFromPairs -- insert root node
+        adjacencyList = buildAdjacencyList pairs category category 0 emptyMap
     print $ M.toList hashmap
---    print pairs
