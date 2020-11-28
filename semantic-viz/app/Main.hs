@@ -108,6 +108,7 @@ visualize filename = do
 --    of semantic relationships between the related words
 -- 3. Visualize the graph using Matplotlib
 main = do
+    putStrLn "Enter a word/category to visualize the semantic relationships with related words:"
     category <- getLine
     let cmd = "app/wc-bash.sh"
         args = [category]
