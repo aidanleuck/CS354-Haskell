@@ -10,20 +10,22 @@ getCurrParent :: [String] -> Maybe String
 getCurrParent [] = Nothing
 getCurrParent (x:xs) = Just x
 
+
 -- add neighbor to current node without updating current parent node pointer
 addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
-    let currParent = getCurrParent parents
-        vals = M.lookup Just currParent hashmap   -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
-        newVals = Just vals
-
+    let currParent = head parents
+        vals = M.lookup currParent hashmap  -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
+        newVals = vals
         newParents = (currParent: parents)
-    M.update Just(currParent) newVals hashmap
+    case currParent of
+        Just currParent -> M.update currParent newVals hashmap
+        Nothing -> return ()
     buildAdjacencyList pairs newParents currNumSpaces hashmap
 
 
 -- update current node to new word and add neighbor
-addNeighborNewParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String Int -> Map String Int
+addNeighborNewParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborNewParent pairs parents currNumSpaces word spaces hashmap = do
     let newParents = (word:parents)
         currParent = word
@@ -34,7 +36,7 @@ addNeighborNewParent pairs parents currNumSpaces word spaces hashmap = do
 
 
 -- update current node to old parent and add neighbor
-addNeighborOldParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String Int -> Map String Int
+addNeighborOldParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
     let currNumSpaces = spaces
         newParents = init parents
@@ -46,7 +48,7 @@ addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
 
 
 -- main function for building the adjacency list
-buildAdjacencyList :: [(String, Int)] -> [String] -> Int -> Map String Int -> Map String Int
+buildAdjacencyList :: [(String, Int)] -> [String] -> Int -> Map String [String] -> Map String [String]
 buildAdjacencyList [] parents currNumSpaces hashmap = hashmap
 buildAdjacencyList pairs parents currNumSpaces hashmap = do
     let next = head pairs
