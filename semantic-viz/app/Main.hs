@@ -87,17 +87,24 @@ getPairs inputLines = do
 getFirstTuple :: [(String,Int)] -> (String,Int)
 getFirstTuple (tuple: tuples) = tuple
 
-
+-- Get first item from list of lists
 getFirstList :: [[(String,Int)]] -> [(String,Int)]
 getFirstList (list: lists) = list
 
+-- Use matplotlib to visualize graph
+visualize filename = do
+    let cmd = "python3"
+        args = ["app/visualize.py", filename]
+        input = ""
+    (rc, out, err) <- readProcessWithExitCode cmd args input
+    putStrLn "Visualizing semantic graph with Matplotlib..."
 
 main = do
     category <- getLine
---    let cmd = "app/wc-bash.sh"
---        args = [category]
---        input = ""
---    (rc, out, err) <- readProcessWithExitCode cmd args input
+    let cmd = "app/wc-bash.sh"
+        args = [category]
+        input = ""
+    (rc, out, err) <- readProcessWithExitCode cmd args input
 
     let inputLines = getLines "app/wn_output.txt"
     nonIOLines <- inputLines
@@ -109,3 +116,4 @@ main = do
         adjacencyList = buildAdjacencyList pairsWithRoot [category] 0 hashmapWithRoot
         adjacencyListString = show adjacencyList
     writeFile "app/adjacency_list.txt" adjacencyListString
+    visualize "app/adjacency_list.txt"
