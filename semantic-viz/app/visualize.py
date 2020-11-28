@@ -8,13 +8,25 @@ import networkx
 import matplotlib.pyplot as plt
 
 
+def toLower(dictData):
+    output = {}
+    for key, vals in dictData.items():
+        k = key.lower()
+        output[k] = []
+        for val in vals:
+            v = val.lower()
+            output[k].append(v)
+    return output
+
 def main(filename, word1, word2):
     with open(filename, 'r') as fp:
         data = fp.read()
 
     cleanData = data.split()[1]
     listData = ast.literal_eval(cleanData)
-    adjacencyList = dict(listData)
+    dictData = dict(listData)
+    adjacencyList = toLower(dictData)
+
 
     if word1 not in adjacencyList:
         sys.stderr.write("{} not found in semantic graph (you can open app/adjacency_list.txt to see what words exist in the graph)\n".format(word2))
