@@ -32,7 +32,7 @@ addNeighborNewParent pairs parents currNumSpaces word spaces hashmap = do
 addNeighborOldParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
     let currNumSpaces = spaces
-        newParents = init parents
+        newParents = tail parents
         currParent = last newParents
         vals = M.lookup currParent hashmap
         newVals = (word: (fromMaybe [] vals))
@@ -45,8 +45,6 @@ buildAdjacencyList :: [(String, Int)] -> [String] -> Int -> Map String [String] 
 buildAdjacencyList [] parents currNumSpaces hashmap = hashmap
 buildAdjacencyList pairs parents currNumSpaces hashmap = do
     let currParent = head parents
---        word = head next
---        spaces = last next
         (word, spaces) = getFirstTuple pairs
     if spaces > currNumSpaces then addNeighborNewParent (tail pairs) parents currNumSpaces word spaces hashmap
     else if spaces < currNumSpaces then addNeighborOldParent (tail pairs) parents currNumSpaces word spaces hashmap
@@ -96,10 +94,10 @@ getFirstList (list: lists) = list
 
 main = do
     category <- getLine
-    let cmd = "app/wc-bash.sh"
-        args = [category]
-        input = ""
-    (rc, out, err) <- readProcessWithExitCode cmd args input
+--    let cmd = "app/wc-bash.sh"
+--        args = [category]
+--        input = ""
+--    (rc, out, err) <- readProcessWithExitCode cmd args input
 
     let inputLines = getLines "app/wn_output.txt"
     nonIOLines <- inputLines
@@ -109,4 +107,5 @@ main = do
         emptyMap = M.empty
         hashmapWithRoot = M.insert category [] emptyMap
         adjacencyList = buildAdjacencyList pairsWithRoot [category] 0 hashmapWithRoot
-    print $ M.toList adjacencyList
+        adjacencyListString = show adjacencyList
+    writeFile "app/adjacency_list.txt" adjacencyListString
