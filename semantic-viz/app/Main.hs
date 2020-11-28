@@ -1,4 +1,3 @@
---import Lib
 import System.IO
 import System.Process
 import Data.Maybe
@@ -6,7 +5,7 @@ import Data.Map (Map)
 import qualified Data.Map as M
 
 
--- add neighbor to current node without updating current parent node pointer
+-- Add neighbor to current node without updating current parent node pointer
 addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
     let currParent = head parents
@@ -17,7 +16,7 @@ addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
     buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
 
 
--- update current node to new word and add neighbor
+-- Update current node to new word and add neighbor
 addNeighborNewParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborNewParent pairs parents currNumSpaces word spaces hashmap = do
     let newParents = (word:parents)
@@ -28,7 +27,7 @@ addNeighborNewParent pairs parents currNumSpaces word spaces hashmap = do
     buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
 
 
--- update current node to old parent and add neighbor
+-- Update current node to old parent and add neighbor
 addNeighborOldParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
     let currNumSpaces = spaces
@@ -40,7 +39,7 @@ addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
     buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
 
 
--- main function for building the adjacency list
+-- Recursive(-ish) function for building the adjacency list.
 buildAdjacencyList :: [(String, Int)] -> [String] -> Int -> Map String [String] -> Map String [String]
 buildAdjacencyList [] parents currNumSpaces hashmap = hashmap
 buildAdjacencyList pairs parents currNumSpaces hashmap = do
@@ -87,9 +86,11 @@ getPairs inputLines = do
 getFirstTuple :: [(String,Int)] -> (String,Int)
 getFirstTuple (tuple: tuples) = tuple
 
+
 -- Get first item from list of lists
 getFirstList :: [[(String,Int)]] -> [(String,Int)]
 getFirstList (list: lists) = list
+
 
 -- Use matplotlib to visualize graph
 visualize filename = do
@@ -98,6 +99,7 @@ visualize filename = do
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
     putStrLn "Visualizing semantic graph with Matplotlib..."
+
 
 main = do
     category <- getLine
