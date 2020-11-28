@@ -1,19 +1,33 @@
-import Lib
+--import Lib
 import System.IO
 import System.Process
 import Data.Maybe
 import Data.Map (Map)
 import qualified Data.Map as M
 
+-- Returns value of the current parent
+getCurrParent :: [String] -> Maybe String
+getCurrParent [] = Nothing
+getCurrParent (x:xs) = Just x
+
+getVals :: Map String [String] -> String -> [String]
+getVals hashmap key = do 
+  let foundValue = M.lookup key hashmap -- set foundValue to whatever the result was
+  case foundValue of
+       Nothing -> return ("Value does not exist") -- If we get Nothing from lookup
+       Just ([result]) -> [result]                    -- Otherwise return the result
+
+
 
 -- add neighbor to current node without updating current parent node pointer
-addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String Int -> Map String Int
+addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
-    let currParent = head parents
-        vals = M.lookup currParent hashmap
-        newVals = (word:vals)
+    let currParent = getCurrParent parents
+        vals = getVals hashmap currParent   -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
+        --newVals = [vals]
+
         newParents = (currParent: parents)
-    M.update currParent newVals hashmap
+    M.update Just(currParent) vals hashmap
     buildAdjacencyList pairs newParents currNumSpaces hashmap
 
 

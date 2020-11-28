@@ -1,67 +1,120 @@
-import Lib
+--import Lib
 import System.IO
 import System.Process
-import Text.Regex.PCRE.Light
---import Data.ByteString.Char8 as C
 import Data.Maybe
+import Data.Map (Map)
+import qualified Data.Map as M
+
+-- Returns value of the current parent
+getCurrParent :: [a] -> Maybe a
+getCurrParent parentList = case parentList of
+    [] -> Nothing -- Returns nothing if empty list
+    (x:_) -> Just x   -- Returns x if we have a list
+
+getVals :: Map String [String] -> String -> [String]
+getVals hashmap key = do
+  let foundValue = M.lookup key hashmap
+  case foundValue of
+       Nothing -> return ("Value does not exist")
+       Just (result) -> result
 
 
--- function for counting spaces on a line, which we use to determine node placement in graph
--- countNumSpaces str = length ([x | x <- str, x == ' '])
--- countNumSpaces str = length (filter (\x -> x == ' ') str)
+
+-- add neighbor to current node without updating current parent node pointer
+addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
+addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
+    let currParent = getCurrParent parents
+        vals = getVals hashmap currParent   -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
+        --newVals = [vals]
+
+        newParents = (currParent: parents)
+    M.update Just(currParent) vals hashmap
+    buildAdjacencyList pairs newParents currNumSpaces hashmap
+
+
+-- update current node to new word and add neighbor
+addNeighborNewParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String Int -> Map String Int
+addNeighborNewParent pairs parents currNumSpaces word spaces hashmap = do
+    let newParents = (word:parents)
+        currParent = word
+        currNumSpaces = spaces
+        prevParent = currParent
+    M.insert word [] hashmap
+    buildAdjacencyList pairs newParents currNumSpaces hashmap
+
+
+-- update current node to old parent and add neighbor
+addNeighborOldParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String Int -> Map String Int
+addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
+    let currNumSpaces = spaces
+        newParents = init parents
+        currParent = last newParents
+        vals = M.lookup currParent hashmap
+        newVals = (word:vals)
+    M.update currParent newVals hashmap
+    buildAdjacencyList pairs newParents currNumSpaces hashmap
+
+
+-- main function for building the adjacency list
+buildAdjacencyList :: [(String, Int)] -> [String] -> Int -> Map String Int -> Map String Int
+buildAdjacencyList [] parents currNumSpaces hashmap = hashmap
+buildAdjacencyList pairs parents currNumSpaces hashmap = do
+    let next = head pairs
+        word = head next
+        spaces = last next
+        currParent = head parents
+    if spaces > currNumSpaces then addNeighborNewParent (init pairs) currParent currNumSpaces word spaces hashmap
+    else if spaces < currNumSpaces then addNeighborOldParent (init pairs) currParent currNumSpaces word spaces hashmap
+    else addNeighborSameParent (init pairs) currParent currNumSpaces word spaces hashmap
+
+
+-- Counts spaces
 isSpace s = s == ' '
 countNumSpaces str = length (filter isSpace str)
 
-data Graph a = Graph [(a,[a])] -- Graph is a list of origins paired with edgeends
 
-createGraph ::Eq a => [(a,a)] -> Graph a
-createGraph = undefined
-
-empty :: Graph a
-empty = Graph []
-
-insertVertex :: Eq a => a -> Graph a -> Graph a
-insertVertex = undefined -- insert if not already in the Graph (with empty edges)
-
-insertEdge :: Eq a => (a,a) -> Graph a -> Graph a
-insertEdge = undefined -- insert edge in list of origin
---do not forget to add origin, end if they don't exist
-
-split :: [Char] -> [String]
-split "" = [""]
-split ('=':cs) = "" : split cs
-split (c:cs) = (c:cellCompletion) : otherCells
- where cellCompletion : otherCells = split cs
+-- Splits a line on the '=' character. Used by the getPairs function.
+splitOnEqualSign :: [Char] -> [String]
+splitOnEqualSign "" = [""]
+splitOnEqualSign ('=':cs) = "" : splitOnEqualSign cs
+splitOnEqualSign (c:cs) = (c:cellCompletion) : otherCells
+ where cellCompletion : otherCells = splitOnEqualSign cs
 
 
-parseFile :: String -> IO String
-parseFile fileName = do
-    contents <- readFile fileName
-    let inputLines = lines contents
-    return (unlines inputLines)
+-- Gets lines from input file containing wordnet output, and removes headers from top
+getLines :: String -> IO [String]
+getLines fileName = do
+    let inputLines = drop 7 . lines <$> readFile fileName
+    outLines <- inputLines
+    return outLines
+
+
+-- Inputs lines of Wordnet output and returns pairs of words + number of leading spaces for that input line
+getPairs :: [String] -> [(String, Int)]
+getPairs inputLines = do
+    let splitLines = map splitOnEqualSign inputLines  -- split input lines on '=' character
+        spaces = map head splitLines -- get leading spaces on each line
+        numSpaces = map length spaces -- measure number of leading spaces on each line
+        wordStrings = map last (map words inputLines) -- get words on each line
+        pairs = zip wordStrings numSpaces
+    return pairs
+
 
 main = do
-
-    putStrLn "Enter a word to parse:"
-    n <- getLine
+    category <- getLine
     let cmd = "app/wc-bash.sh"
-        args = [n]
+        args = [category]
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
 
-    let x = parseFile "haskelltxt.txt"
-    y <- x
-    putStrLn y
-
-
-
---    case contents of
---        Just contents -> parse contents
---        Nothing -> return ()
-
---parse :: [Char] -> IO ()
---parse contents = group1 where
---    r = compile (C.pack "Sense 1(.*?)Sense") [dotall]
---    groups = match r (C.pack contents) []
---    group1 = Prelude.head groups
---    System.IO.putStrLn group1
+    let inputLines = getLines "app/wn_output.txt"
+    nonIOLines <- inputLines
+    let pairs = getPairs nonIOLines
+        pairsWithRoot = ((category, 0): pairs)
+        emptyMap = M.empty
+        hashmapWithRoot = M.insert category 0 emptyMap
+--        hashmapFromPairs = M.fromList (head pairs) -- construct hashmap of (word, num_spaces) pairs
+--        hashmapFromPairs =  M.insert n 0 hashmapFromPairs -- insert root node
+        adjacencyList = buildAdjacencyList pairsWithRoot [category] 0 hashmapWithRoot
+--    print $ M.toList hashmap
+    print pairs
