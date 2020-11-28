@@ -9,34 +9,52 @@ import qualified Data.Map as M
 addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
     let currParent = head parents
+        -- add parent -> node relationship
         vals = M.lookup currParent hashmap
         newVals = (word: (fromMaybe [] vals))
         newParents = (currParent: parents)
         updatedHashmap = M.insert currParent newVals hashmap
-    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
+
+        -- add node -> parent relationship
+        vals2 = M.lookup word hashmap
+        newVals2 = (currParent: (fromMaybe [] vals2))
+        updatedHashmap2 = M.insert word newVals2 updatedHashmap
+    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap2
 
 
 -- Update current node to new word and add neighbor
 addNeighborNewParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborNewParent pairs parents currNumSpaces word spaces hashmap = do
-    let newParents = (word:parents)
+    let prevParent = head parents
+        newParents = (word:parents)
         currParent = word
         currNumSpaces = spaces
-        prevParent = currParent
-        updatedHashmap = M.insert word [] hashmap
+
+        -- add node -> parent relationship
+        updatedHashmap = M.insert word [prevParent] hashmap
+
+        -- add parent -> node relationship
+        updatedHashmap2 = M.insert prevParent [word] hashmap
     buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
 
 
 -- Update current node to old parent and add neighbor
 addNeighborOldParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
-    let currNumSpaces = spaces
-        newParents = tail parents
-        currParent = last newParents
+    let newParents = tail parents
+        currParent = head newParents
+        currNumSpaces = spaces
+
+        -- add parent -> node relationship
         vals = M.lookup currParent hashmap
         newVals = (word: (fromMaybe [] vals))
         updatedHashmap = M.insert currParent newVals hashmap
-    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
+
+        -- add node -> parent relationship
+        vals2 = M.lookup word hashmap
+        newVals2 = (currParent: (fromMaybe [] vals2))
+        updatedHashmap2 = M.insert word newVals2 hashmap
+    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap2
 
 
 -- Recursive(-ish) function for building the adjacency list. Uses number of leading spaces of each line of
@@ -110,10 +128,10 @@ visualize filename = do
 main = do
     putStrLn "Enter a word/category to visualize the semantic relationships with related words:"
     category <- getLine
-    let cmd = "app/wc-bash.sh"
-        args = [category]
-        input = ""
-    (rc, out, err) <- readProcessWithExitCode cmd args input
+--    let cmd = "app/wc-bash.sh"
+--        args = [category]
+--        input = ""
+--    (rc, out, err) <- readProcessWithExitCode cmd args input
 
     let inputLines = getLines "app/wn_output.txt"
     nonIOLines <- inputLines
