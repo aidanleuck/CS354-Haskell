@@ -1,30 +1,50 @@
 #!/usr/bin/python3
 
 import os
+import sys
 import ast
 import argparse
 import networkx
 import matplotlib.pyplot as plt
 
 
-def main(filename):
+def main(filename, word1, word2):
     with open(filename, 'r') as fp:
         data = fp.read()
 
     cleanData = data.split()[1]
     listData = ast.literal_eval(cleanData)
     adjacencyList = dict(listData)
+
+    if word1 not in adjacencyList:
+        sys.stderr.write("{} not found in semantic graph (you can open app/adjacency_list.txt to see what words exist in the graph)\n".format(word2))
+        return -1
+    if word2 not in adjacencyList:
+        sys.stderr.write("{} not found in semantic graph (you can open app/adjacency_list.txt to see what words exist in the graph)\n".format(word2))
+        return -1
+
     graph = networkx.Graph(adjacencyList)
 
     for key, vals in adjacencyList.items():
         for v in vals:
             graph.add_edge(key, v)
 
+    pos = networkx.spring_layout(graph) #, k=0.5, iterations=20)
+
+    path = networkx.shortest_path(graph, source=word1, target=word2)
+    path_edges = [_ for _ in zip(path, path[1:])]
+    networkx.draw_networkx_nodes(graph, pos,nodelist=path,node_color='r')
+    networkx.draw_networkx_edges(graph, pos,edgelist=path_edges, edge_color='r', width=5)
+    plt.axis('equal')
+
     networkx.draw_spring(graph, with_labels=True)
     plt.show()
+    return 0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Graph Visualizer')
     parser.add_argument("filename", help="filename of adjacency list")
+    parser.add_argument("word1", help="word 1 (source) for calculating semantic distance")
+    parser.add_argument("word2", help="word 2 (target) for calculating semantic distance")
     args = parser.parse_args()
-    main(args.filename)
+    main(args.filename, args.word1, args.word2)

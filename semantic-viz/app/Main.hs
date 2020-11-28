@@ -59,6 +59,8 @@ addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
 
 -- Recursive(-ish) function for building the adjacency list. Uses number of leading spaces of each line of
 -- output from Wordnet to determine node placement in graph.
+-- NOTE: I say recursive-ish because the helper functions it calls all call this function again after
+--       completing their respective operations (i.e. tail recursion)
 buildAdjacencyList :: [(String, Int)] -> [String] -> Int -> Map String [String] -> Map String [String]
 buildAdjacencyList [] parents currNumSpaces hashmap = hashmap
 buildAdjacencyList pairs parents currNumSpaces hashmap = do
@@ -112,9 +114,9 @@ getFirstList (list: lists) = list
 
 
 -- Use matplotlib to visualize graph
-visualize filename = do
+visualize filename word1 word2 = do
     let cmd = "python3"
-        args = ["app/visualize.py", filename]
+        args = ["app/visualize.py", filename, word1, word2]
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
     putStrLn "Visualizing semantic graph with Matplotlib..."
@@ -124,15 +126,23 @@ visualize filename = do
 -- 1. Runs Wordnet with user specified input word
 -- 2. Parses Wordnet output into an adjacency list representing an undirected graph
 --    of semantic relationships between the related words
--- 3. Visualize the graph using Matplotlib
+-- 3. Display the undirected graph and visualize the shortest distance between the 2 input words
 main = do
+    -- get user input
     putStrLn "Enter a word/category to visualize the semantic relationships with related words:"
     category <- getLine
+    putStrLn "Enter word 1 (source) for calculating semantic distance:"
+    word1 <- getLine
+    putStrLn "Enter word 1 (target) for calculating semantic distance:"
+    word2 <- getLine
+
+    -- run wordnet
 --    let cmd = "app/wc-bash.sh"
 --        args = [category]
 --        input = ""
 --    (rc, out, err) <- readProcessWithExitCode cmd args input
 
+    -- parse wordnet output into adjacency list
     let inputLines = getLines "app/wn_output.txt"
     nonIOLines <- inputLines
     let zippedPairs = getPairs nonIOLines
@@ -143,4 +153,6 @@ main = do
         adjacencyList = buildAdjacencyList pairsWithRoot [category] 0 hashmapWithRoot
         adjacencyListString = show adjacencyList
     writeFile "app/adjacency_list.txt" adjacencyListString
-    visualize "app/adjacency_list.txt"
+
+    -- display undirected graph and visualize shortest distance between input words
+    visualize "app/adjacency_list.txt" word1 word2
