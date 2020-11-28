@@ -1,94 +1,30 @@
 #!/usr/bin/python3
 
+import os
+import ast
+import argparse
 import networkx
 import matplotlib.pyplot as plt
 
-data = {'Afghan': ['coonhound',
-            'boarhound',
-            'bluetick',
-            'sleuthhound',
-            'beagle',
-            'hound'],
- 'Chihuahua': ['spaniel', 'Shih-Tzu', 'Peke', 'Maltese', 'spaniel'],
- 'Samoyede': ['keeshond', 'chow', 'Pomeranian'],
- 'Sealyham': [],
- 'bulldog': [],
- 'coondog': ['coonhound'],
- 'corgi': ['corgi'],
- 'courser': ['dog', 'ridgeback'],
- 'dalmatian': [],
- 'dog': ['hairless',
-         'dog',
-         'corgi',
-         'griffon',
-         'basenji',
-         'dog',
-         'husky',
-         'Dane',
-         'mastiff',
-         'dog',
-         'briard',
-         'dog'],
- 'fice': ['toy', 'pie-dog'],
- 'foxhound': ['wolfhound', 'redbone', 'hound', 'foxhound', 'foxhound'],
- 'greyhound': ['Weimaraner',
-               'staghound',
-               'deerhound',
-               'hound',
-               'hound',
-               'elkhound',
-               'whippet'],
- 'griffon': [],
- 'groenendael': ['spitz',
-                 'Pyrenees',
-                 'dog',
-                 'Leonberg',
-                 'pug-dog',
-                 'dog',
-                 'dog',
-                 'Bernard',
-                 'dog',
-                 'dog',
-                 'bulldog',
-                 'mastiff',
-                 'boxer',
-                 'dog',
-                 'alsatian',
-                 'Rottweiler',
-                 'Flandres',
-                 'collie',
-                 'collie',
-                 'Shetland',
-                 'bobtail',
-                 'komondor',
-                 'kelpie',
-                 'malinois'],
- 'hound': [],
- 'kuvasz': ['pinscher', 'schipperke', 'housedog', 'dog'],
- 'malamute': ['husky'],
- 'mastiff': [],
- 'pinscher': ['dog', 'pinscher'],
- 'pointer': ['pointer'],
- 'poodle': ['poodle', 'poodle', 'poodle'],
- 'retriever': ['retriever', 'retriever', 'retriever', 'retriever'],
- 'schnauzer': ['apso',
-               'terrier',
-               'terrier',
-               'silky',
-               'dog',
-               'schnauzer',
-               'schnauzer'],
- 'setter': ['setter', 'setter'],
- 'shepherd': [],
- 'spaniel': ['spaniel'],
- 'terrier': [],
- 'wolfhound': ['wolfhound']}
 
-graph = networkx.Graph(data)
+def main(filename):
+    with open(filename, 'r') as fp:
+        data = fp.read()
 
-for key, vals in data.items():
-	for v in vals:
-		graph.add_edge(key, v)
+    cleanData = data.split()[1]
+    listData = ast.literal_eval(cleanData)
+    adjacencyList = dict(listData)
+    graph = networkx.Graph(adjacencyList)
 
-networkx.draw_spring(graph, with_labels=True)
-plt.show()
+    for key, vals in adjacencyList.items():
+        for v in vals:
+            graph.add_edge(key, v)
+
+    networkx.draw_spring(graph, with_labels=True)
+    plt.show()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog='Graph Visualizer')
+    parser.add_argument("filename", help="filename of adjacency list")
+    args = parser.parse_args()
+    main(args.filename)
