@@ -9,7 +9,7 @@ import qualified Data.Map as M
 addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
     let currParent = head parents
-        vals = M.lookup currParent hashmap  -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
+        vals = M.lookup currParent hashmap
         newVals = (word: (fromMaybe [] vals))
         newParents = (currParent: parents)
         updatedHashmap = M.insert currParent newVals hashmap
@@ -101,7 +101,11 @@ visualize filename = do
     (rc, out, err) <- readProcessWithExitCode cmd args input
     putStrLn "Visualizing semantic graph with Matplotlib..."
 
-
+-- Main function with the following steps
+-- 1. Runs Wordnet with user specified input word
+-- 2. Parses Wordnet output into an adjacency list representing an undirected graph
+--    of semantic relationships between the related words
+-- 3. Visualize the graph using Matplotlib
 main = do
     category <- getLine
     let cmd = "app/wc-bash.sh"
