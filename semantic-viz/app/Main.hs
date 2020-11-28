@@ -101,6 +101,7 @@ visualize filename = do
     (rc, out, err) <- readProcessWithExitCode cmd args input
     putStrLn "Visualizing semantic graph with Matplotlib..."
 
+
 -- Main function with the following steps
 -- 1. Runs Wordnet with user specified input word
 -- 2. Parses Wordnet output into an adjacency list representing an undirected graph
