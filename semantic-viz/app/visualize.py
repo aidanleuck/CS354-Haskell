@@ -29,15 +29,13 @@ def main(filename, word1, word2):
         for v in vals:
             graph.add_edge(key, v)
 
-    pos = networkx.spring_layout(graph) #, k=0.5, iterations=20)
-
+    pos = networkx.spring_layout(graph, k=0.1, iterations=20)
+    networkx.draw(graph, pos, node_color='w', edge_color='k', with_labels=True)
     path = networkx.shortest_path(graph, source=word1, target=word2)
     path_edges = [_ for _ in zip(path, path[1:])]
     networkx.draw_networkx_nodes(graph, pos,nodelist=path,node_color='r')
     networkx.draw_networkx_edges(graph, pos,edgelist=path_edges, edge_color='r', width=5)
     plt.axis('equal')
-
-    networkx.draw_spring(graph, with_labels=True)
     plt.show()
     return 0
 

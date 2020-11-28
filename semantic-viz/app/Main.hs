@@ -137,10 +137,10 @@ main = do
     word2 <- getLine
 
     -- run wordnet
---    let cmd = "app/wc-bash.sh"
---        args = [category]
---        input = ""
---    (rc, out, err) <- readProcessWithExitCode cmd args input
+    let cmd = "app/wc-bash.sh"
+        args = [category]
+        input = ""
+    (rc, out, err) <- readProcessWithExitCode cmd args input
 
     -- parse wordnet output into adjacency list
     let inputLines = getLines "app/wn_output.txt"
