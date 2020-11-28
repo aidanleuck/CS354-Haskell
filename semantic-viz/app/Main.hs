@@ -48,9 +48,9 @@ buildAdjacencyList pairs parents currNumSpaces hashmap = do
 --        word = head next
 --        spaces = last next
         (word, spaces) = getFirstTuple pairs
-    if spaces > currNumSpaces then addNeighborNewParent (init pairs) parents currNumSpaces word spaces hashmap
-    else if spaces < currNumSpaces then addNeighborOldParent (init pairs) parents currNumSpaces word spaces hashmap
-    else addNeighborSameParent (init pairs) parents currNumSpaces word spaces hashmap
+    if spaces > currNumSpaces then addNeighborNewParent (tail pairs) parents currNumSpaces word spaces hashmap
+    else if spaces < currNumSpaces then addNeighborOldParent (tail pairs) parents currNumSpaces word spaces hashmap
+    else addNeighborSameParent (tail pairs) parents currNumSpaces word spaces hashmap
 
 
 -- Counts spaces
@@ -75,19 +75,23 @@ getLines fileName = do
 
 
 -- Inputs lines of Wordnet output and returns pairs of words + number of leading spaces for that input line
-getPairs :: [String] -> [(String, Int)]
+getPairs :: [String] -> [[(String, Int)]]
 getPairs inputLines = do
     let splitLines = map splitOnEqualSign inputLines  -- split input lines on '=' character
         spaces = map head splitLines -- get leading spaces on each line
         numSpaces = map length spaces -- measure number of leading spaces on each line
         wordStrings = map last (map words inputLines) -- get words on each line
         pairs = zip wordStrings numSpaces
-    return (head pairs) -- NOTE: this should not be head, but it won't compile otherwise at the moment
+    return pairs -- NOTE: this should not be head, but it won't compile otherwise at the moment
 
 
 -- Get first tuple from list of tuples
 getFirstTuple :: [(String,Int)] -> (String,Int)
 getFirstTuple (tuple: tuples) = tuple
+
+
+getFirstList :: [[(String,Int)]] -> [(String,Int)]
+getFirstList (list: lists) = list
 
 
 main = do
@@ -99,7 +103,8 @@ main = do
 
     let inputLines = getLines "app/wn_output.txt"
     nonIOLines <- inputLines
-    let pairs = getPairs nonIOLines
+    let zippedPairs = getPairs nonIOLines
+        pairs = getFirstList zippedPairs
         pairsWithRoot = ((category, 0): pairs)
         emptyMap = M.empty
         hashmapWithRoot = M.insert category [] emptyMap
