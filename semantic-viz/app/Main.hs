@@ -16,12 +16,13 @@ addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> 
 addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
     let currParent = head parents
         vals = M.lookup currParent hashmap  -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
-        newVals = vals
+        newVals = (word: (fromMaybe [] vals))
         newParents = (currParent: parents)
-    case currParent of
-        Just currParent -> M.update currParent newVals hashmap
-        Nothing -> return ()
+        --justCurrParent = (fromMaybe "TEST" currParent)
+    M.update currParent newVals hashmap
     buildAdjacencyList pairs newParents currNumSpaces hashmap
+--    print currParent
+--    return hashmap
 
 
 -- update current node to new word and add neighbor
@@ -42,7 +43,7 @@ addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
         newParents = init parents
         currParent = last newParents
         vals = M.lookup currParent hashmap
-        newVals = (word:vals)
+        newVals = (word: (fromMaybe [] vals))
     M.update currParent newVals hashmap
     buildAdjacencyList pairs newParents currNumSpaces hashmap
 
