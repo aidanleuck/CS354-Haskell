@@ -39,7 +39,8 @@ addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
     buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
 
 
--- Recursive(-ish) function for building the adjacency list.
+-- Recursive(-ish) function for building the adjacency list. Uses number of leading spaces of each line of
+-- output from Wordnet to determine node placement in graph.
 buildAdjacencyList :: [(String, Int)] -> [String] -> Int -> Map String [String] -> Map String [String]
 buildAdjacencyList [] parents currNumSpaces hashmap = hashmap
 buildAdjacencyList pairs parents currNumSpaces hashmap = do
@@ -79,7 +80,7 @@ getPairs inputLines = do
         numSpaces = map length spaces -- measure number of leading spaces on each line
         wordStrings = map last (map words inputLines) -- get words on each line
         pairs = zip wordStrings numSpaces
-    return pairs -- NOTE: this should not be head, but it won't compile otherwise at the moment
+    return pairs
 
 
 -- Get first tuple from list of tuples
