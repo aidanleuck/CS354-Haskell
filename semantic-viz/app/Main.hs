@@ -10,24 +10,15 @@ getCurrParent :: [String] -> Maybe String
 getCurrParent [] = Nothing
 getCurrParent (x:xs) = Just x
 
-getVals :: Map String [String] -> String -> [String]
-getVals hashmap key = do 
-  let foundValue = M.lookup key hashmap -- set foundValue to whatever the result was
-  case foundValue of
-       Nothing -> return ("Value does not exist") -- If we get Nothing from lookup
-       Just ([result]) -> [result]                    -- Otherwise return the result
-
-
-
 -- add neighbor to current node without updating current parent node pointer
 addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
     let currParent = getCurrParent parents
-        vals = getVals hashmap currParent   -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
-        --newVals = [vals]
+        vals = M.lookup Just currParent hashmap   -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
+        newVals = Just vals
 
         newParents = (currParent: parents)
-    M.update Just(currParent) vals hashmap
+    M.update Just(currParent) newVals hashmap
     buildAdjacencyList pairs newParents currNumSpaces hashmap
 
 

@@ -6,29 +6,19 @@ import Data.Map (Map)
 import qualified Data.Map as M
 
 -- Returns value of the current parent
-getCurrParent :: [a] -> Maybe a
-getCurrParent parentList = case parentList of
-    [] -> Nothing -- Returns nothing if empty list
-    (x:_) -> Just x   -- Returns x if we have a list
-
-getVals :: Map String [String] -> String -> [String]
-getVals hashmap key = do
-  let foundValue = M.lookup key hashmap
-  case foundValue of
-       Nothing -> return ("Value does not exist")
-       Just (result) -> result
-
-
+getCurrParent :: [String] -> Maybe String
+getCurrParent [] = Nothing
+getCurrParent (x:xs) = Just x
 
 -- add neighbor to current node without updating current parent node pointer
 addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
     let currParent = getCurrParent parents
-        vals = getVals hashmap currParent   -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
-        --newVals = [vals]
+        vals = M.lookup Just -> currParent hashmap   -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
+        newVals = Just vals
 
         newParents = (currParent: parents)
-    M.update Just(currParent) vals hashmap
+    M.update Just(currParent) newVals hashmap
     buildAdjacencyList pairs newParents currNumSpaces hashmap
 
 
