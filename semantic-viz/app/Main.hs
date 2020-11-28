@@ -5,11 +5,6 @@ import Data.Maybe
 import Data.Map (Map)
 import qualified Data.Map as M
 
--- Returns value of the current parent
-getCurrParent :: [String] -> Maybe String
-getCurrParent [] = Nothing
-getCurrParent (x:xs) = Just x
-
 
 -- add neighbor to current node without updating current parent node pointer
 addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
@@ -18,11 +13,8 @@ addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
         vals = M.lookup currParent hashmap  -- Checks if value is in hashmap returns 0 "Hi" for testing purposes
         newVals = (word: (fromMaybe [] vals))
         newParents = (currParent: parents)
-        --justCurrParent = (fromMaybe "TEST" currParent)
-    M.update currParent newVals hashmap
-    buildAdjacencyList pairs newParents currNumSpaces hashmap
---    print currParent
---    return hashmap
+        updatedHashmap = M.insert currParent newVals hashmap
+    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
 
 
 -- update current node to new word and add neighbor
@@ -32,8 +24,8 @@ addNeighborNewParent pairs parents currNumSpaces word spaces hashmap = do
         currParent = word
         currNumSpaces = spaces
         prevParent = currParent
-    M.insert word [] hashmap
-    buildAdjacencyList pairs newParents currNumSpaces hashmap
+        updatedHashmap = M.insert word [] hashmap
+    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
 
 
 -- update current node to old parent and add neighbor
@@ -44,21 +36,21 @@ addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
         currParent = last newParents
         vals = M.lookup currParent hashmap
         newVals = (word: (fromMaybe [] vals))
-    M.update currParent newVals hashmap
-    buildAdjacencyList pairs newParents currNumSpaces hashmap
+        updatedHashmap = M.insert currParent newVals hashmap
+    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
 
 
 -- main function for building the adjacency list
 buildAdjacencyList :: [(String, Int)] -> [String] -> Int -> Map String [String] -> Map String [String]
 buildAdjacencyList [] parents currNumSpaces hashmap = hashmap
 buildAdjacencyList pairs parents currNumSpaces hashmap = do
-    let next = head pairs
-        word = head next
-        spaces = last next
-        currParent = head parents
-    if spaces > currNumSpaces then addNeighborNewParent (init pairs) currParent currNumSpaces word spaces hashmap
-    else if spaces < currNumSpaces then addNeighborOldParent (init pairs) currParent currNumSpaces word spaces hashmap
-    else addNeighborSameParent (init pairs) currParent currNumSpaces word spaces hashmap
+    let currParent = head parents
+--        word = head next
+--        spaces = last next
+        (word, spaces) = getFirstTuple pairs
+    if spaces > currNumSpaces then addNeighborNewParent (init pairs) parents currNumSpaces word spaces hashmap
+    else if spaces < currNumSpaces then addNeighborOldParent (init pairs) parents currNumSpaces word spaces hashmap
+    else addNeighborSameParent (init pairs) parents currNumSpaces word spaces hashmap
 
 
 -- Counts spaces
@@ -90,7 +82,12 @@ getPairs inputLines = do
         numSpaces = map length spaces -- measure number of leading spaces on each line
         wordStrings = map last (map words inputLines) -- get words on each line
         pairs = zip wordStrings numSpaces
-    return pairs
+    return (head pairs) -- NOTE: this should not be head, but it won't compile otherwise at the moment
+
+
+-- Get first tuple from list of tuples
+getFirstTuple :: [(String,Int)] -> (String,Int)
+getFirstTuple (tuple: tuples) = tuple
 
 
 main = do
@@ -105,9 +102,6 @@ main = do
     let pairs = getPairs nonIOLines
         pairsWithRoot = ((category, 0): pairs)
         emptyMap = M.empty
-        hashmapWithRoot = M.insert category 0 emptyMap
---        hashmapFromPairs = M.fromList (head pairs) -- construct hashmap of (word, num_spaces) pairs
---        hashmapFromPairs =  M.insert n 0 hashmapFromPairs -- insert root node
+        hashmapWithRoot = M.insert category [] emptyMap
         adjacencyList = buildAdjacencyList pairsWithRoot [category] 0 hashmapWithRoot
---    print $ M.toList hashmap
-    print pairs
+    print $ M.toList adjacencyList
