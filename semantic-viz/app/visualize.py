@@ -57,4 +57,4 @@ if __name__ == '__main__':
     parser.add_argument("word1", help="word 1 (source) for calculating semantic distance")
     parser.add_argument("word2", help="word 2 (target) for calculating semantic distance")
     args = parser.parse_args()
-    main(args.filename, args.word1, args.word2)
+    main(args.filename, args.word1.lower(), args.word2.lower())

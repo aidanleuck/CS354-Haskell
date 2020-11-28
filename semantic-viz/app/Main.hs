@@ -2,7 +2,21 @@ import System.IO
 import System.Process
 import Data.Maybe
 import Data.Map (Map)
+import Data.List.Unique
 import qualified Data.Map as M
+
+
+-- Recursive(-ish) function for building the adjacency list. Uses number of leading spaces of each line of
+-- output from Wordnet to determine node placement in graph.
+-- NOTE: I say recursive-ish because the helper functions it calls all call this function again after
+--       completing their respective operations (i.e. tail recursion)
+buildAdjacencyList :: [(String, Int)] -> [String] -> Int -> Map String [String] -> Map String [String]
+buildAdjacencyList [] parents currNumSpaces hashmap = hashmap
+buildAdjacencyList pairs parents currNumSpaces hashmap = do
+    let (word, spaces) = getFirstTuple pairs
+    if spaces > currNumSpaces then addNeighborNewParent (tail pairs) parents currNumSpaces word spaces hashmap
+    else if spaces < currNumSpaces then addNeighborOldParent (tail pairs) parents currNumSpaces word spaces hashmap
+    else addNeighborSameParent (tail pairs) parents currNumSpaces word spaces hashmap
 
 
 -- Add neighbor to current node without updating current parent node pointer
@@ -11,15 +25,14 @@ addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
     let currParent = head parents
         -- add parent -> node relationship
         vals = M.lookup currParent hashmap
-        newVals = (word: (fromMaybe [] vals))
-        newParents = (currParent: parents)
+        newVals = uniq (word: (fromMaybe [] vals))
         updatedHashmap = M.insert currParent newVals hashmap
 
         -- add node -> parent relationship
         vals2 = M.lookup word hashmap
-        newVals2 = (currParent: (fromMaybe [] vals2))
+        newVals2 = uniq (currParent: (fromMaybe [] vals2))
         updatedHashmap2 = M.insert word newVals2 updatedHashmap
-    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap2
+    buildAdjacencyList pairs parents currNumSpaces updatedHashmap2
 
 
 -- Update current node to new word and add neighbor
@@ -47,28 +60,14 @@ addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
 
         -- add parent -> node relationship
         vals = M.lookup currParent hashmap
-        newVals = (word: (fromMaybe [] vals))
+        newVals = uniq (word: (fromMaybe [] vals))
         updatedHashmap = M.insert currParent newVals hashmap
 
         -- add node -> parent relationship
         vals2 = M.lookup word hashmap
-        newVals2 = (currParent: (fromMaybe [] vals2))
+        newVals2 = uniq (currParent: (fromMaybe [] vals2))
         updatedHashmap2 = M.insert word newVals2 hashmap
     buildAdjacencyList pairs newParents currNumSpaces updatedHashmap2
-
-
--- Recursive(-ish) function for building the adjacency list. Uses number of leading spaces of each line of
--- output from Wordnet to determine node placement in graph.
--- NOTE: I say recursive-ish because the helper functions it calls all call this function again after
---       completing their respective operations (i.e. tail recursion)
-buildAdjacencyList :: [(String, Int)] -> [String] -> Int -> Map String [String] -> Map String [String]
-buildAdjacencyList [] parents currNumSpaces hashmap = hashmap
-buildAdjacencyList pairs parents currNumSpaces hashmap = do
-    let currParent = head parents
-        (word, spaces) = getFirstTuple pairs
-    if spaces > currNumSpaces then addNeighborNewParent (tail pairs) parents currNumSpaces word spaces hashmap
-    else if spaces < currNumSpaces then addNeighborOldParent (tail pairs) parents currNumSpaces word spaces hashmap
-    else addNeighborSameParent (tail pairs) parents currNumSpaces word spaces hashmap
 
 
 -- Counts spaces
@@ -83,11 +82,18 @@ splitOnEqualSign ('=':cs) = "" : splitOnEqualSign cs
 splitOnEqualSign (c:cs) = (c:cellCompletion) : otherCells
  where cellCompletion : otherCells = splitOnEqualSign cs
 
+-- Splits a line on the ',' character. Used by the getPairs function.
+splitOnCommas :: [Char] -> [String]
+splitOnCommas "" = [""]
+splitOnCommas (',':cs) = "" : splitOnCommas cs
+splitOnCommas (c:cs) = (c:cellCompletion) : otherCells
+ where cellCompletion : otherCells = splitOnCommas cs
+
 
 -- Gets lines from input file containing wordnet output, and removes headers from top
 getLines :: String -> IO [String]
 getLines fileName = do
-    let inputLines = drop 7 . lines <$> readFile fileName
+    let inputLines = drop 3 . lines <$> readFile fileName
     outLines <- inputLines
     return outLines
 
@@ -98,7 +104,7 @@ getPairs inputLines = do
     let splitLines = map splitOnEqualSign inputLines  -- split input lines on '=' character
         spaces = map head splitLines -- get leading spaces on each line
         numSpaces = map length spaces -- measure number of leading spaces on each line
-        wordStrings = map last (map words inputLines) -- get words on each line
+        wordStrings = map removeCommas (map getFirstWord (map words inputLines)) -- get words on each line
         pairs = zip wordStrings numSpaces
     return pairs
 
@@ -111,6 +117,21 @@ getFirstTuple (tuple: tuples) = tuple
 -- Get first item from list of lists
 getFirstList :: [[(String,Int)]] -> [(String,Int)]
 getFirstList (list: lists) = list
+
+
+-- Get second element of each list if length is > 1, else return first element
+getFirstWord (x:y:xs) = do
+    if (null y) then x
+    else y
+
+
+-- Check if item already exists in list
+isDuplicate _ [] = False
+isDuplicate x (y : ys) = if x == y then True else isDuplicate x ys
+
+
+-- Remove commas from string
+removeCommas xs = [ x | x <- xs, not (x `elem` ",") ]
 
 
 -- Use matplotlib to visualize graph
