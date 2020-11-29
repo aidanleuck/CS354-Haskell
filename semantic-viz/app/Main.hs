@@ -158,10 +158,10 @@ main = do
     word2 <- getLine
 
     -- run wordnet
---    let cmd = "app/wc-bash.sh"
---        args = [category]
---        input = ""
---    (rc, out, err) <- readProcessWithExitCode cmd args input
+    let cmd = "app/wc-bash.sh"
+        args = [category]
+        input = ""
+    (rc, out, err) <- readProcessWithExitCode cmd args input
 
     -- parse wordnet output into adjacency list
     let inputLines = getLines "app/wn_output.txt"
@@ -174,6 +174,6 @@ main = do
         adjacencyList = buildAdjacencyList pairs [category] 0 hashmapWithRoot
         adjacencyListString = show adjacencyList
     writeFile "app/adjacency_list.txt" adjacencyListString
-    print pairsWithRoot
+
     -- display undirected graph and visualize shortest distance between input words
     visualize "app/adjacency_list.txt" word1 word2
