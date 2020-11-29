@@ -93,7 +93,7 @@ splitOnCommas (c:cs) = (c:cellCompletion) : otherCells
 -- Gets lines from input file containing wordnet output, and removes headers from top
 getLines :: String -> IO [String]
 getLines fileName = do
-    let inputLines = drop 4 . lines <$> readFile fileName
+    let inputLines = drop 3 . lines <$> readFile fileName
     outLines <- inputLines
     return outLines
 
@@ -104,7 +104,7 @@ getPairs inputLines = do
     let splitLines = map splitOnEqualSign inputLines  -- split input lines on '=' character
         spaces = map head splitLines -- get leading spaces on each line
         numSpaces = map length spaces -- measure number of leading spaces on each line
-            wordStrings = map removeCommas (map splitOnCommas inputLines) -- get words on each line
+        wordStrings = map removeCommas (map getFirstWord (map words inputLines)) -- map removeCommas (map getFirstWord (map words inputLines))-- get words on each line
         pairs = zip wordStrings numSpaces
     return pairs
 
@@ -158,10 +158,10 @@ main = do
     word2 <- getLine
 
     -- run wordnet
-    let cmd = "app/wc-bash.sh"
-        args = [category]
-        input = ""
-    (rc, out, err) <- readProcessWithExitCode cmd args input
+--    let cmd = "app/wc-bash.sh"
+--        args = [category]
+--        input = ""
+--    (rc, out, err) <- readProcessWithExitCode cmd args input
 
     -- parse wordnet output into adjacency list
     let inputLines = getLines "app/wn_output.txt"
@@ -171,9 +171,9 @@ main = do
         pairsWithRoot = ((category, 0): pairs)
         emptyMap = M.empty
         hashmapWithRoot = M.insert category [] emptyMap
-        adjacencyList = buildAdjacencyList pairsWithRoot [category] 0 hashmapWithRoot
+        adjacencyList = buildAdjacencyList pairs [category] 0 hashmapWithRoot
         adjacencyListString = show adjacencyList
     writeFile "app/adjacency_list.txt" adjacencyListString
-
+    print pairsWithRoot
     -- display undirected graph and visualize shortest distance between input words
     visualize "app/adjacency_list.txt" word1 word2
