@@ -93,7 +93,7 @@ splitOnCommas (c:cs) = (c:cellCompletion) : otherCells
 -- Gets lines from input file containing wordnet output, and removes headers from top
 getLines :: String -> IO [String]
 getLines fileName = do
-    let inputLines = drop 3 . lines <$> readFile fileName
+    let inputLines = drop 4 . lines <$> readFile fileName
     outLines <- inputLines
     return outLines
 
@@ -104,7 +104,7 @@ getPairs inputLines = do
     let splitLines = map splitOnEqualSign inputLines  -- split input lines on '=' character
         spaces = map head splitLines -- get leading spaces on each line
         numSpaces = map length spaces -- measure number of leading spaces on each line
-        wordStrings = map removeCommas (map getFirstWord (map words inputLines)) -- get words on each line
+            wordStrings = map removeCommas (map splitOnCommas inputLines) -- get words on each line
         pairs = zip wordStrings numSpaces
     return pairs
 
