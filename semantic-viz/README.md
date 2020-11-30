@@ -28,3 +28,5 @@ After the project has been created, make sure to click on Edit Configurations
 <img src="editconfigurations.PNG" alt="ls /proc" width="900">
 
 Add the Haskell Stack to the configurations. Following, open a terminal in the semantic-viz folder and enter the command `build stack` to build the project and enter `stack exec semantic-viz-exe` to run the project.
+
+<img src="stackexec.PNG" alt="ls /proc" width="900">
