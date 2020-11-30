@@ -193,7 +193,7 @@ main = do
         pairsWithRoot = ((category, 0): pairs)
 
          -- use stack to track parent hierarchy
-        parents = [category,category]
+        parents = [category]
 
         -- use hashmap for adjacency list
         emptyMap = M.empty
@@ -202,6 +202,7 @@ main = do
         -- populate adjacency list recursively
         adjacencyList = buildAdjacencyList pairs parents 0 hashmapWithRoot
         adjacencyListString = show adjacencyList
+
 
     writeFile "app/adjacency_list.txt" adjacencyListString
 
