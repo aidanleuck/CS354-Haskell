@@ -30,3 +30,8 @@ After the project has been created, make sure to click on Edit Configurations
 Add the Haskell Stack to the configurations. Following, open a terminal in the semantic-viz folder and enter the command `build stack` to build the project and enter `stack exec semantic-viz-exe` to run the project.
 
 <img src="stackexec.PNG" alt="ls /proc" width="900">
+
+Follow the prompts to run the program. It will prompt you for:
+
+1. The word to query Wordnet for (hyponym)
+2. The source word and target word you want to visualize the semantic distance between.
