@@ -5,6 +5,7 @@ While their are many different routes to downloading and installing this project
 
 After VM installation is complete: 
   - download the appropriate version of Wordnet: https://wordnet.princeton.edu/download/current-version
+  - download and install Haskell: `$ sudo apt-get install haskell-platform`
   - download The Haskell Tool Stack: https://docs.haskellstack.org/en/stable/install_and_upgrade/
   - download the most recent version of Python: https://www.python.org/downloads/source/
   - download MatPlotlib: https://matplotlib.org/users/installing.html
@@ -26,4 +27,4 @@ After the project has been created, make sure to click on Edit Configurations
 
 <img src="editconfigurations.PNG" alt="ls /proc" width="900">
 
-Add the Haskell Stack to the configurations. Following, open a terminal in the following semantic-viz folder enter the command `build stack` to build the project and `stack exec semantic-viz-exe` to run the project.
+Add the Haskell Stack to the configurations. Following, open a terminal in the semantic-viz folder and enter the command `build stack` to build the project and enter `stack exec semantic-viz-exe` to run the project.
