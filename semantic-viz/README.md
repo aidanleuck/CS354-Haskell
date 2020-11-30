@@ -11,11 +11,23 @@ After VM installation is complete download and install the following dependancie
   - MatPlotlib: https://matplotlib.org/users/installing.html
   - NetworkX: https://networkx.org/documentation/stable/install.html
   - Intellij via Ubuntu Software
+  - Haskell plugin for Intellij
 
 **Example**  
 <img src="intellij.PNG" alt="ls /proc" width="900">
 
-After installing the necessary dependancies, make sure to clone the repo `git clone https://github.com/aidanleuck/CS354-Haskell` to an appropriate folder. Then open Intellij and create a new project, with the Haskell Took Stack as the project SDK
+To get Haskell working in IntelliJ you must first install the Haskell plugin.
+
+Click the gear in the bottom right corner to configure IntelliJ
+
+<img src="homePage.PNG" alt="ls /proc" width="900">
+
+
+Click plugins and then search the marketplace for Haskell. Choose the plugin named IntelliJ-Haskell and click install
+
+<img src="plugin-page.PNG" alt="ls /proc" width="900">
+
+After installing the necessary dependancies, make sure to clone the repo `git clone https://github.com/aidanleuck/CS354-Haskell` to an appropriate folder. Then create a new project, with the Haskell Took Stack as the project SDK
 
 <img src="SDK.PNG" alt="ls /proc" width="900">
 
@@ -29,6 +41,10 @@ After the project has been created, make sure to click on Edit Configurations
 
 Add the Haskell Stack to the configurations. Following, open a terminal in the semantic-viz folder and enter the command `build stack` to build the project and enter `stack exec semantic-viz-exe` to run the project.
 
+Follow the prompts to run the program. It will prompt you for:
+
+1. The word to query Wordnet for (hyponym)
+2. The source word and target word you want to visualize the semantic distance between.
 <img src="stackexec.PNG" alt="ls /proc" width="900">
 
 Follow the prompts to run the program. It will prompt you for:
