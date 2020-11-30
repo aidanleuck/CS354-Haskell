@@ -22,39 +22,47 @@ buildAdjacencyList pairs parents currNumSpaces hashmap = do
 -- Add neighbor to current node without updating current parent node pointer
 addNeighborSameParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborSameParent pairs parents currNumSpaces word spaces hashmap = do
-    let currParent = head parents
+    let (_, oldParents) = pop parents -- pop last item on parent hiearchy (if spaces didn't change, it has no children)
+        currParent = head oldParents
+
         -- add parent -> node relationship
         vals = M.lookup currParent hashmap
         newVals = uniq (word: (fromMaybe [] vals))
         updatedHashmap = M.insert currParent newVals hashmap
 
         -- add node -> parent relationship
-        vals2 = M.lookup word hashmap
+        vals2 = M.lookup word updatedHashmap
         newVals2 = uniq (currParent: (fromMaybe [] vals2))
         updatedHashmap2 = M.insert word newVals2 updatedHashmap
-    buildAdjacencyList pairs parents currNumSpaces updatedHashmap2
+
+        -- add word to parents in case next line has more spaces and it becomes a parent
+        (__, newParents) = push word oldParents
+    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap2
 
 
 -- Update current node to new word and add neighbor
 addNeighborNewParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborNewParent pairs parents currNumSpaces word spaces hashmap = do
-    let prevParent = head parents
-        newParents = (word:parents)
-        currParent = word
+    let currParent = head parents
+        (_, newParents) = push word parents
         currNumSpaces = spaces
 
         -- add node -> parent relationship
-        updatedHashmap = M.insert word [prevParent] hashmap
+        vals = M.lookup word hashmap
+        newVals = uniq (currParent: (fromMaybe [] vals))
+        updatedHashmap = M.insert word newVals hashmap
 
         -- add parent -> node relationship
-        updatedHashmap2 = M.insert prevParent [word] hashmap
-    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap
+        vals2 = M.lookup currParent updatedHashmap
+        newVals2 = uniq (word: (fromMaybe [] vals2))
+        updatedHashmap2 = M.insert currParent newVals2 updatedHashmap
+    buildAdjacencyList pairs newParents currNumSpaces updatedHashmap2
 
 
 -- Update current node to old parent and add neighbor
 addNeighborOldParent :: [(String, Int)] -> [String] -> Int -> String -> Int -> Map String [String] -> Map String [String]
 addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
-    let newParents = tail parents
+    let (_, newParents) = pop parents -- pop last parent from stack and use new top element as parent
         currParent = head newParents
         currNumSpaces = spaces
 
@@ -66,7 +74,7 @@ addNeighborOldParent pairs parents currNumSpaces word spaces hashmap = do
         -- add node -> parent relationship
         vals2 = M.lookup word hashmap
         newVals2 = uniq (currParent: (fromMaybe [] vals2))
-        updatedHashmap2 = M.insert word newVals2 hashmap
+        updatedHashmap2 = M.insert word newVals2 updatedHashmap
     buildAdjacencyList pairs newParents currNumSpaces updatedHashmap2
 
 
@@ -93,7 +101,7 @@ splitOnCommas (c:cs) = (c:cellCompletion) : otherCells
 -- Gets lines from input file containing wordnet output, and removes headers from top
 getLines :: String -> IO [String]
 getLines fileName = do
-    let inputLines = drop 3 . lines <$> readFile fileName
+    let inputLines = drop 4 . lines <$> readFile fileName
     outLines <- inputLines
     return outLines
 
@@ -120,6 +128,7 @@ getFirstList (list: lists) = list
 
 
 -- Get second element of each list if length is > 1, else return first element
+getFirstWord [] = []
 getFirstWord (x:y:xs) = do
     if (null y) then x
     else y
@@ -132,6 +141,17 @@ isDuplicate x (y : ys) = if x == y then True else isDuplicate x ys
 
 -- Remove commas from string
 removeCommas xs = [ x | x <- xs, not (x `elem` ",") ]
+
+
+-- Push element to stack
+push :: a -> [a] -> ((),[a])  -- return a tuple containing a 'nothing' and a new stack
+push elem stack = ((), (:) elem stack)
+
+
+-- Pop element from stack
+pop :: [a] -> (a, [a])  -- return a tuple containing the popped element and the new stack
+pop [] = error "Can't pop from an empty stack!"
+pop ((:) x stack) = (x, stack)
 
 
 -- Use matplotlib to visualize graph
@@ -157,22 +177,32 @@ main = do
     putStrLn "Enter word 1 (target) for calculating semantic distance:"
     word2 <- getLine
 
-    -- run wordnet
+    -- query wordnet for hyponym of given word
     let cmd = "app/wc-bash.sh"
         args = [category]
         input = ""
     (rc, out, err) <- readProcessWithExitCode cmd args input
 
-    -- parse wordnet output into adjacency list
+
     let inputLines = getLines "app/wn_output.txt"
     nonIOLines <- inputLines
+
+    -- parse wordnet output into list of tuples [(word, numberOfLeadingSpaces)..]
     let zippedPairs = getPairs nonIOLines
         pairs = getFirstList zippedPairs
         pairsWithRoot = ((category, 0): pairs)
+
+         -- use stack to track parent hierarchy
+        parents = [category,category]
+
+        -- use hashmap for adjacency list
         emptyMap = M.empty
         hashmapWithRoot = M.insert category [] emptyMap
-        adjacencyList = buildAdjacencyList pairs [category] 0 hashmapWithRoot
+
+        -- populate adjacency list recursively
+        adjacencyList = buildAdjacencyList pairs parents 0 hashmapWithRoot
         adjacencyListString = show adjacencyList
+
     writeFile "app/adjacency_list.txt" adjacencyListString
 
     -- display undirected graph and visualize shortest distance between input words
