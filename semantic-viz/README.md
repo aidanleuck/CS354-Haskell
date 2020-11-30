@@ -11,6 +11,7 @@ After VM installation is complete download and install the following dependancie
   - MatPlotlib: https://matplotlib.org/users/installing.html
   - NetworkX: https://networkx.org/documentation/stable/install.html
   - Intellij via Ubuntu Software
+  - Haskell plugin for Intellij
 
 **Example**  
 <img src="intellij.PNG" alt="ls /proc" width="900">
