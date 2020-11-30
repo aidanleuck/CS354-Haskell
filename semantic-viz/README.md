@@ -20,12 +20,12 @@ To get Haskell working in IntelliJ you must first install the Haskell plugin.
 
 Click the gear in the bottom right corner to configure IntelliJ
 
-<img src="homePage.PNG" alt="ls /proc" width="900">
+<img src="homePage.png" alt="ls /proc" width="900">
 
 
 Click plugins and then search the marketplace for Haskell. Choose the plugin named IntelliJ-Haskell and click install
 
-<img src="plugin-page.PNG" alt="ls /proc" width="900">
+<img src="plugin-page.png" alt="ls /proc" width="900">
 
 After installing the necessary dependancies, make sure to clone the repo `git clone https://github.com/aidanleuck/CS354-Haskell` to an appropriate folder. Then create a new project, with the Haskell Took Stack as the project SDK
 
